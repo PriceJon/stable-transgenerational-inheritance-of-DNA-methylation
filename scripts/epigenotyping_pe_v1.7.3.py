@@ -46,7 +46,7 @@ def processInputs( inFileStr, numProc, binSize, outID, parentLabelAr, decoding, 
 	# build dataframe
 	if isPrint:
 		print( ' Reading input file', os.path.basename( inFileStr ) )
-	df = pd.read_table( inFileStr, header=1 )
+	df = pd.read_table( inFileStr, header=1 , dtype={"sample": str , "pos": int , "wei.meth" : float })
 	
 	# check parent labels
 	newParentLabelAr = checkParents( df['sample'], parentLabelAr )
@@ -276,8 +276,8 @@ def runClassification( dfg, numProc, parentLabelAr, classProbs ):
 		helper function that takes advantage of the number of processors
 	'''
 	mapfunc = partial( classifyBin, pla=parentLabelAr, u=classProbs )
-	with multiprocessing.Pool(processes=numProc) as p:
-		res = p.map( mapfunc, [group for group in dfg] )
+	p= multiprocessing.Pool(processes=numProc)
+	res = p.map( mapfunc, [group for group in dfg] )
 	return pd.concat(res)
 
 def classifyBin( group, pla=None, u=[0.25, 0.5, 0.25] ):
@@ -368,8 +368,8 @@ def checkMidparents( df, nbins ):
 
 def runDecoding( dfg, numProc, transMat, decodeType, centro, classProbs ):
 	mapfunc = partial( decodeSample, trans=transMat, d=decodeType, cent=centro, pi=classProbs )
-	with multiprocessing.Pool(processes=numProc) as p:
-		res = p.map( mapfunc, [group for group in dfg] )
+	p= multiprocessing.Pool(processes=numProc)
+	res = p.map( mapfunc, [group for group in dfg] )
 	return pd.concat(res)
 
 def decodeSample( group, trans=None, d='V', cent=[], pi=None ):
